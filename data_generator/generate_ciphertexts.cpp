@@ -6,6 +6,8 @@
 #include <fstream>
 #include <filesystem>
 #include <sstream>
+#include <thread>
+#include <mutex>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/des.h>
@@ -24,6 +26,7 @@ private:
     const size_t FILE_SIZE_GB = 8;
     const size_t FILE_SIZE_BYTES = FILE_SIZE_GB * 1024ULL * 1024ULL * 1024ULL;
     const size_t CHUNK_SIZE = 100 * 1024 * 1024; // 100 MB chunków dla efektywnego przetwarzania
+    std::mutex coutMutex; // Mutex dla synchronizacji wyjścia konsoli
     
     void generate56BitKey(unsigned int seed) {
         std::mt19937 keyGen(seed);
@@ -138,101 +141,118 @@ public:
     CiphertextGenerator(unsigned int baseSeed) : generator(baseSeed) {
         generate56BitKey(baseSeed);
     }
+
+    void generateCiphertextForAlgorithm(const std::string& alg, const std::string& outputDir, unsigned int baseSeed) {
+        std::string algDir = outputDir + "/" + alg;
+        createDirectory(algDir);
+
+        std::ostringstream filename;
+        filename << algDir << "/" << alg << "_" << baseSeed << ".bin";
+        std::string filepath = filename.str();
+
+        {
+            std::lock_guard<std::mutex> lock(coutMutex);
+            std::cout << "Generowanie pliku dla algorytmu: " << alg << std::endl;
+            std::cout << "  Plik: " << filepath << std::endl;
+        }
+
+        // Otwórz plik do zapisu
+        std::ofstream file(filepath, std::ios::binary);
+        if (!file.is_open()) {
+            std::lock_guard<std::mutex> lock(coutMutex);
+            std::cerr << "  Błąd: Nie można otworzyć pliku " << filepath << std::endl;
+            return;
+        }
+
+        size_t bytesWritten = 0;
+        unsigned int chunkSeed = baseSeed + (alg == "cast" ? 0 : alg == "rc4" ? 10000 :
+                                              alg == "des" ? 20000 : 30000);
+        size_t lastProgressReport = 0;
+
+        // Generuj i zapisuj w chunkach
+        while (bytesWritten < FILE_SIZE_BYTES) {
+            size_t currentChunkSize = std::min(CHUNK_SIZE, FILE_SIZE_BYTES - bytesWritten);
+
+            // Generuj dane losowe dla chunka
+            std::vector<unsigned char> randomData;
+            generateRandomData(randomData, currentChunkSize, chunkSeed + bytesWritten);
+
+            // Szyfruj danymi algorytmem
+            std::vector<unsigned char> encrypted;
+            if (alg == "cast") {
+                encrypted = encryptCAST(randomData);
+            } else if (alg == "rc4") {
+                encrypted = encryptRC4(randomData);
+            } else if (alg == "des") {
+                encrypted = encryptDES(randomData);
+            } else if (alg == "blowfish") {
+                encrypted = encryptBlowfish(randomData);
+            }
+
+            // Zapisz chunk do pliku
+            if (!writeChunkToFile(file, encrypted)) {
+                std::lock_guard<std::mutex> lock(coutMutex);
+                std::cerr << "  Błąd przy zapisie do pliku " << filepath << std::endl;
+                file.close();
+                return;
+            }
+
+            bytesWritten += encrypted.size();
+
+            // Wyświetl postęp co 500 MB lub na końcu
+            size_t progressInterval = 500 * 1024 * 1024; // 500 MB
+            if (bytesWritten - lastProgressReport >= progressInterval ||
+                bytesWritten >= FILE_SIZE_BYTES) {
+                std::lock_guard<std::mutex> lock(coutMutex);
+                double progress = (static_cast<double>(bytesWritten) / FILE_SIZE_BYTES) * 100.0;
+                std::cout << "  [" << alg << "] Postęp: " << std::fixed << std::setprecision(1) << progress
+                          << "% (" << formatBytes(bytesWritten) << " / "
+                          << formatBytes(FILE_SIZE_BYTES) << ")" << std::endl;
+                lastProgressReport = bytesWritten;
+            }
+        }
+
+        file.close();
+
+        std::lock_guard<std::mutex> lock(coutMutex);
+        if (bytesWritten == FILE_SIZE_BYTES) {
+            std::cout << "  ✓ [" << alg << "] Zapisano: " << filepath
+                      << " (" << formatBytes(bytesWritten) << ")" << std::endl;
+        } else {
+            std::cerr << "  ✗ [" << alg << "] Nie udało się zapisać pełnego pliku" << std::endl;
+        }
+    }
     
-    void generateCiphertexts(const std::string& outputDir = "ciphertexts") {
+    void generateCiphertexts(const std::string& outputDir = "ciphertexts", unsigned int seed = 12345) {
         // Utwórz katalog główny
         createDirectory(outputDir);
-        
-        // Katalogi dla każdego algorytmu
+
+        // Algorytmy do przetworzenia
         std::vector<std::string> algorithms = {"cast", "rc4", "des", "blowfish"};
-        
+
         std::cout << "Generowanie szyfrogramów..." << std::endl;
         std::cout << "Rozmiar każdego pliku: " << formatBytes(FILE_SIZE_BYTES) << std::endl;
         std::cout << "Klucz 56-bit: ";
         for (int i = 0; i < 7; i++) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0') 
+            std::cout << std::hex << std::setw(2) << std::setfill('0')
                       << static_cast<int>(key56[i]);
         }
         std::cout << std::dec << std::endl << std::endl;
-        
-        size_t totalWritten = 0;
-        
+
+        // Uruchom każdy algorytm w osobnym wątku
+        std::vector<std::thread> threads;
         for (const auto& alg : algorithms) {
-            std::string algDir = outputDir + "/" + alg;
-            createDirectory(algDir);
-            
-            std::string filepath = algDir + "/" + alg + ".bin";
-            
-            std::cout << "Generowanie pliku dla algorytmu: " << alg << std::endl;
-            std::cout << "  Plik: " << filepath << std::endl;
-            
-            // Otwórz plik do zapisu
-            std::ofstream file(filepath, std::ios::binary);
-            if (!file.is_open()) {
-                std::cerr << "  Błąd: Nie można otworzyć pliku " << filepath << std::endl;
-                continue;
-            }
-            
-            size_t bytesWritten = 0;
-            unsigned int baseSeed = generator();
-            unsigned int chunkSeed = baseSeed + (alg == "cast" ? 0 : alg == "rc4" ? 10000 : 
-                                                  alg == "des" ? 20000 : 30000);
-            size_t lastProgressReport = 0;
-            
-            // Generuj i zapisuj w chunkach
-            while (bytesWritten < FILE_SIZE_BYTES) {
-                size_t currentChunkSize = std::min(CHUNK_SIZE, FILE_SIZE_BYTES - bytesWritten);
-                
-                // Generuj dane losowe dla chunka
-                std::vector<unsigned char> randomData;
-                generateRandomData(randomData, currentChunkSize, chunkSeed + bytesWritten);
-                
-                // Szyfruj danymi algorytmem
-                std::vector<unsigned char> encrypted;
-                if (alg == "cast") {
-                    encrypted = encryptCAST(randomData);
-                } else if (alg == "rc4") {
-                    encrypted = encryptRC4(randomData);
-                } else if (alg == "des") {
-                    encrypted = encryptDES(randomData);
-                } else if (alg == "blowfish") {
-                    encrypted = encryptBlowfish(randomData);
-                }
-                
-                // Zapisz chunk do pliku
-                if (!writeChunkToFile(file, encrypted)) {
-                    std::cerr << "  Błąd przy zapisie do pliku " << filepath << std::endl;
-                    file.close();
-                    break;
-                }
-                
-                bytesWritten += encrypted.size();
-                
-                // Wyświetl postęp co 500 MB lub na końcu
-                size_t progressInterval = 500 * 1024 * 1024; // 500 MB
-                if (bytesWritten - lastProgressReport >= progressInterval || 
-                    bytesWritten >= FILE_SIZE_BYTES) {
-                    double progress = (static_cast<double>(bytesWritten) / FILE_SIZE_BYTES) * 100.0;
-                    std::cout << "  Postęp: " << std::fixed << std::setprecision(1) << progress 
-                              << "% (" << formatBytes(bytesWritten) << " / " 
-                              << formatBytes(FILE_SIZE_BYTES) << ")" << std::endl;
-                    lastProgressReport = bytesWritten;
-                }
-            }
-            
-            file.close();
-            
-            if (bytesWritten == FILE_SIZE_BYTES) {
-                totalWritten += bytesWritten;
-                std::cout << "  ✓ Zapisano: " << filepath 
-                          << " (" << formatBytes(bytesWritten) << ")" << std::endl;
-            } else {
-                std::cerr << "  ✗ Nie udało się zapisać pełnego pliku" << std::endl;
-            }
-            
-            std::cout << std::endl;
+            threads.emplace_back(&CiphertextGenerator::generateCiphertextForAlgorithm,
+                                this, alg, outputDir, seed);
         }
-        
+
+        // Poczekaj na zakończenie wszystkich wątków
+        for (auto& thread : threads) {
+            thread.join();
+        }
+
+        size_t totalWritten = algorithms.size() * FILE_SIZE_BYTES;
+        std::cout << std::endl;
         std::cout << "Zakończono generowanie szyfrogramów." << std::endl;
         std::cout << "Łącznie zapisano: " << formatBytes(totalWritten) << std::endl;
         std::cout << "Pliki znajdują się w katalogu: " << outputDir << std::endl;
@@ -256,7 +276,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     
     CiphertextGenerator generator(seed);
-    generator.generateCiphertexts(outputDir);
+    generator.generateCiphertexts(outputDir, seed);
     
     return 0;
 }
