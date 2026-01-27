@@ -142,6 +142,45 @@ generate_ciphertexts/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_ciphertexts.dir/build.make CMakeFiles/generate_ciphertexts.dir/build
 .PHONY : generate_ciphertexts/fast
 
+#=============================================================================
+# Target rules for targets named generate_text
+
+# Build rule for target.
+generate_text: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 generate_text
+.PHONY : generate_text
+
+# fast build rule for target.
+generate_text/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/build
+.PHONY : generate_text/fast
+
+#=============================================================================
+# Target rules for targets named generate_encrypted_text
+
+# Build rule for target.
+generate_encrypted_text: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 generate_encrypted_text
+.PHONY : generate_encrypted_text
+
+# fast build rule for target.
+generate_encrypted_text/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/build
+.PHONY : generate_encrypted_text/fast
+
+#=============================================================================
+# Target rules for targets named generate_fake_text_ciphertexts
+
+# Build rule for target.
+generate_fake_text_ciphertexts: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 generate_fake_text_ciphertexts
+.PHONY : generate_fake_text_ciphertexts
+
+# fast build rule for target.
+generate_fake_text_ciphertexts/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/build
+.PHONY : generate_fake_text_ciphertexts/fast
+
 encrypt.o: encrypt.cpp.o
 .PHONY : encrypt.o
 
@@ -190,6 +229,108 @@ generate_ciphertexts.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_ciphertexts.dir/build.make CMakeFiles/generate_ciphertexts.dir/generate_ciphertexts.cpp.s
 .PHONY : generate_ciphertexts.cpp.s
 
+generate_encrypted_text.o: generate_encrypted_text.cpp.o
+.PHONY : generate_encrypted_text.o
+
+# target to build an object file
+generate_encrypted_text.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/generate_encrypted_text.cpp.o
+.PHONY : generate_encrypted_text.cpp.o
+
+generate_encrypted_text.i: generate_encrypted_text.cpp.i
+.PHONY : generate_encrypted_text.i
+
+# target to preprocess a source file
+generate_encrypted_text.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/generate_encrypted_text.cpp.i
+.PHONY : generate_encrypted_text.cpp.i
+
+generate_encrypted_text.s: generate_encrypted_text.cpp.s
+.PHONY : generate_encrypted_text.s
+
+# target to generate assembly for a file
+generate_encrypted_text.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/generate_encrypted_text.cpp.s
+.PHONY : generate_encrypted_text.cpp.s
+
+generate_fake_text_ciphertexts.o: generate_fake_text_ciphertexts.cpp.o
+.PHONY : generate_fake_text_ciphertexts.o
+
+# target to build an object file
+generate_fake_text_ciphertexts.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/generate_fake_text_ciphertexts.cpp.o
+.PHONY : generate_fake_text_ciphertexts.cpp.o
+
+generate_fake_text_ciphertexts.i: generate_fake_text_ciphertexts.cpp.i
+.PHONY : generate_fake_text_ciphertexts.i
+
+# target to preprocess a source file
+generate_fake_text_ciphertexts.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/generate_fake_text_ciphertexts.cpp.i
+.PHONY : generate_fake_text_ciphertexts.cpp.i
+
+generate_fake_text_ciphertexts.s: generate_fake_text_ciphertexts.cpp.s
+.PHONY : generate_fake_text_ciphertexts.s
+
+# target to generate assembly for a file
+generate_fake_text_ciphertexts.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/generate_fake_text_ciphertexts.cpp.s
+.PHONY : generate_fake_text_ciphertexts.cpp.s
+
+generate_text.o: generate_text.cpp.o
+.PHONY : generate_text.o
+
+# target to build an object file
+generate_text.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/generate_text.cpp.o
+.PHONY : generate_text.cpp.o
+
+generate_text.i: generate_text.cpp.i
+.PHONY : generate_text.i
+
+# target to preprocess a source file
+generate_text.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/generate_text.cpp.i
+.PHONY : generate_text.cpp.i
+
+generate_text.s: generate_text.cpp.s
+.PHONY : generate_text.s
+
+# target to generate assembly for a file
+generate_text.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/generate_text.cpp.s
+.PHONY : generate_text.cpp.s
+
+text_generator.o: text_generator.cpp.o
+.PHONY : text_generator.o
+
+# target to build an object file
+text_generator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/text_generator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/text_generator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/text_generator.cpp.o
+.PHONY : text_generator.cpp.o
+
+text_generator.i: text_generator.cpp.i
+.PHONY : text_generator.i
+
+# target to preprocess a source file
+text_generator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/text_generator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/text_generator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/text_generator.cpp.i
+.PHONY : text_generator.cpp.i
+
+text_generator.s: text_generator.cpp.s
+.PHONY : text_generator.s
+
+# target to generate assembly for a file
+text_generator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_text.dir/build.make CMakeFiles/generate_text.dir/text_generator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_encrypted_text.dir/build.make CMakeFiles/generate_encrypted_text.dir/text_generator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/generate_fake_text_ciphertexts.dir/build.make CMakeFiles/generate_fake_text_ciphertexts.dir/text_generator.cpp.s
+.PHONY : text_generator.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -200,12 +341,27 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... encrypt"
 	@echo "... generate_ciphertexts"
+	@echo "... generate_encrypted_text"
+	@echo "... generate_fake_text_ciphertexts"
+	@echo "... generate_text"
 	@echo "... encrypt.o"
 	@echo "... encrypt.i"
 	@echo "... encrypt.s"
 	@echo "... generate_ciphertexts.o"
 	@echo "... generate_ciphertexts.i"
 	@echo "... generate_ciphertexts.s"
+	@echo "... generate_encrypted_text.o"
+	@echo "... generate_encrypted_text.i"
+	@echo "... generate_encrypted_text.s"
+	@echo "... generate_fake_text_ciphertexts.o"
+	@echo "... generate_fake_text_ciphertexts.i"
+	@echo "... generate_fake_text_ciphertexts.s"
+	@echo "... generate_text.o"
+	@echo "... generate_text.i"
+	@echo "... generate_text.s"
+	@echo "... text_generator.o"
+	@echo "... text_generator.i"
+	@echo "... text_generator.s"
 .PHONY : help
 
 

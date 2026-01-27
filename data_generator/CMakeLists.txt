@@ -10,10 +10,15 @@ find_package(OpenSSL REQUIRED)
 # Dodaj pliki wykonywalne
 add_executable(encrypt encrypt.cpp)
 add_executable(generate_ciphertexts generate_ciphertexts.cpp)
+add_executable(generate_text generate_text.cpp text_generator.cpp)
+add_executable(generate_encrypted_text generate_encrypted_text.cpp text_generator.cpp)
+add_executable(generate_fake_text_ciphertexts generate_fake_text_ciphertexts.cpp text_generator.cpp)
 
 # Połącz z bibliotekami OpenSSL
 target_link_libraries(encrypt OpenSSL::SSL OpenSSL::Crypto)
 target_link_libraries(generate_ciphertexts OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(generate_encrypted_text OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(generate_fake_text_ciphertexts OpenSSL::SSL OpenSSL::Crypto)
 
 # Kompilacja
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
